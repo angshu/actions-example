@@ -1,0 +1,60 @@
+version: '3'
+
+services:
+  app:
+    image: angshu/customer-actions:latest
+    ports:
+      - "9080:9080"
+    build:
+      context: .
+    container_name: actions-app
+    depends_on:
+      - db
+      - kafka
+    environment:
+      - ACTIONS_SERVICE_PORT=9080
+      - ACTIONS_JDBC_CONNECTION_URL=jdbc:postgresql://db:5432/actions-example
+      - ACTIONS_DB_USER_NAME=actions-example
+      - ACTIONS_DB_USER_PWD=actions-example
+      - ACTIONS_JPA_HIBERNATE_DDL_AUTO=create-drop
+      - ACTIONS_KAFKA_SERVER=kafka:9092
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - TZ=Asia/Kolkata
+
+  db:
+    image: postgres:15.1
+    container_name: actions-db
+    ports:
+      - "5432:5432"
+    restart: always
+    shm_size: 128mb
+    environment:
+      - POSTGRES_USER=actions-example
+      - POSTGRES_PASSWORD=actions-example
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.4
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "22181:2181"
+  kafka:
+    image: confluentinc/cp-kafka:7.4.4
+    depends_on:
+      - zookeeper
+    ports:
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1

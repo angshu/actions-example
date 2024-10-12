@@ -42,7 +42,7 @@ or
 
 > sh build.sh
 
-3. verify. should list the just built local image
+2. verify. should list the just built local image
 
 > docker images | grep customer-actions
 
@@ -58,15 +58,15 @@ or
 
 
 2. If you would like to test/debug the app outside the docker environment, you may comment off the `app` service definition in the `docker-compose.yml`
-to run db, kafka and redis within docker. Then run the app from the host system
+to run db, kafka and redis within docker. 
 
 > docker compose down -v
 
 > docker compose up -d
 
-> docker compose up -d
+> docker compose logs --follow
  
-and now run the app from host command line with an externalized properties. for example, action_example.properties
+And now run the app from host system command line with an externalized properties. In this repo, there is a sample file - action_example.properties
 > java -jar target/actions-0.0.1-SNAPSHOT.jar --spring.config.location=file:./action_example.properties
 
 
